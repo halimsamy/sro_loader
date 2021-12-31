@@ -6,18 +6,20 @@
 
 #include "silkroad.h"
 
-int main(int argc, char **argv[])
+int main(int argc, char *argv[])
 {
-  if (argc < 2)
+  if (argc < 3)
   {
     return -1;
   }
 
   SilkroadData data;
-  LoadData(".", data);
+  if (!LoadData(argv[1], data)) {
+    return 0;
+  }
 
   std::stringstream cmd;
-  cmd << ".\\sro_client.exe 0 /" << (int)data.divInfo.locale << " 0 0";
+  cmd << argv[1] << "\\sro_client.exe 0 /" << (int)data.divInfo.locale << " 0 0";
 
   STARTUPINFOA si = {0};
   PROCESS_INFORMATION pi = {0};
@@ -25,7 +27,7 @@ int main(int argc, char **argv[])
 
   bool result =
       (0 != CreateProcessA(0, (LPSTR)cmd.str().c_str(), 0, NULL, FALSE,
-                           CREATE_SUSPENDED, NULL, NULL, &si, &pi));
+                           CREATE_SUSPENDED, NULL, argv[1], &si, &pi));
   if (result == false)
   {
     MessageBoxA(0, "Could not start \"sro_client.exe\".", "Fatal Error",
@@ -36,7 +38,7 @@ int main(int argc, char **argv[])
   // Fire a signal to the dll to do something spical.
   // in our case, it will redirect the connection of the GatewayServer.
   // but this injector was made to be really general so it can be used for any perpose.
-  if (argc == 3)
+  if (argc == 4)
   {
     // Create a bytes array to hold the Process ID but treating it as string
     // that a cheat to avoid the need for a conversion
@@ -49,7 +51,7 @@ int main(int argc, char **argv[])
 
   // Get full path of our dll
   char fullDllName[1024];
-  if (GetFullPathName((LPCSTR)argv[1], sizeof(fullDllName), fullDllName,
+  if (GetFullPathName((LPCSTR)argv[2], sizeof(fullDllName), fullDllName,
                       nullptr) == 0)
   {
     return false;
